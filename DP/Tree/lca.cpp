@@ -53,11 +53,12 @@ void binaryLift(int node, int parent)
 {
     up[node][0] = parent;
 
+    //get all ancestor of each node
     for (int i = 1; i < 20; i++)
     {
         if (up[node][i - 1] != -1)
         {
-            up[node][i] = up[up[node][i - 1]][i - 1];
+            up[node][i] = up[up[node][i - 1]][i - 1]; //2^i = 2^(i-1)+2^(i-1)
         }
         else
         {
@@ -105,17 +106,27 @@ int LCA(int u, int v) //)(logN * logN)
     if (level[u] < level[v])
         swap(u, v);
 
-    u = makeJump(u, level[u] - level[v]);
+    u = makeJump(u, level[u] - level[v]); //Now both u and v are at same level
 
+    /**
+     * LCA will lie at a level somewhere between 0 and level[u] => Apply Binary search
+     * 
+    */
+
+
+    //NOTE-l and h are jump size not levels
     int l = 0;
-    int h = level[u];
+    int h = level[u]; 
     while (l <= h)
     {
+        //make a jump of size mid
         int mid = (l + h) / 2;
 
         int x1 = makeJump(u, mid);
         int x2 = makeJump(v, mid);
 
+        //if mid jump makes the them equal then probably this is the required jump or we have made a larger jump
+        //try reducing the jump size
         if (x1 == x2)
         {
             h = mid - 1;
@@ -144,10 +155,23 @@ int LCA(int u, int v) //)(logN * logN)
  * We will make jumps (as large as possible s.t, makeJump(u,y)!=makeJump(v,y)) from u to reach at level x-1
  *
  * Simply, keep making large jumps till makeJump(u,y)!=makeJump(v,y), when no more jumps can be made we have reached x-1 lvl
- * 
+ *
  * now we will make just 1 jump to reach LCA
  *
- * 
+ *
+ *
+ *              R
+ *              | <-------
+ *              |        |
+ *              |        |<--------
+ *              |        |        |
+ *              |        |        |
+ *              L        |        |
+ *             / \       |       jump2
+ *            /   \      jump1    |
+ *           /     \     |        |
+ *          u       v ___|________|___ ..... so on
+ *
  * T- O(logN)
  */
 
@@ -161,7 +185,7 @@ int LCA2(int u, int v)
     if (u == v)
         return u;
 
-    //make as large as possible jumps
+    // make as large as possible(up[u][i] != up[v][i]) jumps
     for (int i = 19; i >= 0; i--)
     {
         if (up[u][i] != up[v][i]) 
@@ -188,6 +212,7 @@ int main()
         g[a].push_back(i);
     }
 
+    //up[node][i] => 2^i th ancestor of the node
     memset(up, -1, sizeof(up));
 
     binaryLift(1, -1); // calculate ancestor for each node

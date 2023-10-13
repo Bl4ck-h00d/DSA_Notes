@@ -1,0 +1,240 @@
+Important Questions-
+
+Number of distinct substrings in a string.
+(https://www.codingninjas.com/codestudio/problems/count-distinct-substrings_985292?utm_source=youtube&utm_medium=affiliate&utm_campaign=striver_tries_videos)
+
+------------------------------------------------------------------------
+Brute Force
+
+set<string> st;
+
+for(int i=0;i<n;i++)
+{
+    string str="";
+    
+    for(int j=i;j<n;j++)
+    {
+        str+=s[j];
+        st.insert(str);
+    }
+}
+
+return st.size();
+
+
+T-> O(N^2 logM) logM => insertion time in set 
+                M => no. of elements in set 
+
+S-
+
+lets assume all the substring are distinct.
+
+Min substring length = 1
+Max substring length = n
+
+Avg substring length = n/2
+
+since all are distinct we have n^2 substrings in the set.
+
+Every substring ends up takes n/2 space on avg 
+
+S= n^2 * n/2 => n^3
+
+--------------------------------------------------------------------
+
+
+M2- String algos or Trie 
+
+If we use Trie 
+
+aba
+abad  => for storing this string we would need just 1 more node than to store "aba"
+
+Approach-
+
+-generate the substrings 
+-Insert if not present and cnt++
+-If already present move on 
+
+
+
+
+#include<iostream>
+
+using namespace std;
+
+struct Node {
+  Node * links[26];
+
+  bool containsKey(char ch) {
+    return (links[ch - 'a'] != NULL);
+  }
+
+  Node * get(char ch) {
+    return links[ch - 'a'];
+  }
+
+  void put(char ch, Node * node) {
+    links[ch - 'a'] = node;
+  }
+};
+
+
+int countDistinctSubstrings(string & s) {
+
+  Node * root = new Node();
+
+  int count = 0;
+
+  int n = s.size();
+
+  for (int i = 0; i < n; i++) {
+    Node * node = root;
+
+    for (int j = i; j < n; j++) {
+
+      if (!node -> containsKey(s[j])) {
+
+        node -> put(s[j], new Node());
+        count++;
+      }
+      node = node -> get(s[j]);
+    }
+
+  }
+  return count + 1; //+1 for empty string
+}
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+Maximum XOR between elements of 2 arrays
+
+
+Lets say we have number x and an array of integers. Find the max xor value  max(arr[i]^x)
+
+
+arr-> [9,8,7,5,4]
+x=8
+
+
+Approach=> Add elements of array into a Trie in binary representation
+
+arr-> [01001, 01000,00111,00101,00100] => consider binary representation as string and insert in trie.
+
+x= 01000
+
+pos->   4 3 2 1 0
+x---->  0 1 0 0 0
+
+arr-->
+-------------------------
+ans-->  0 1
+
+
+In ans, we want to have as many 1s as possible at MSBs, so we would want a bit accordingly at that position.
+
+- Start from highest bit.
+- To get 1 at 4th bit in the ans, we want element to have 1 at its 4th bit.
+- start from root see if we have a 1? No all the elems have 0 at 4th bit.
+- So we dont have any option=> it will be 0 then.
+- Next bit
+- Do we have 0 at 3rd bit? Yes=> [7,5,4]
+- So, ans will have 3rd bit set (1)
+.
+.
+.
+
+
+class Node {
+    Node* links[2];
+public:
+    
+    bool containsBit(int bit)
+    {
+        return links[bit]!=NULL;
+    }
+    
+    Node* next(int bit)
+    {
+        return links[bit];
+    }
+    
+    void addNode(int bit)
+    {
+        Node* node=new Node();
+        links[bit]=node;
+    }
+    
+};
+
+class Trie {
+    
+    Node* root;
+public:
+    Trie() {
+        root=new Node();
+    }
+    
+    void insert(int n)
+    {
+        Node* node=root;
+        
+        for(int i=31;i>=0;i--)
+        {
+            int bit=(n >> i) & 1;
+            
+            if(!node->containsBit(bit))
+            {
+                node->addNode(bit);
+            }
+            node=node->next(bit);
+        }
+    }
+    
+    int calculate(int n)
+    {
+        Node* node=root;
+        int ans=0;
+        for(int i=31;i>=0;i--)
+        {
+            int bit=(n >> i) & 1;
+            int requiredBit=!bit;
+            
+            if(node->containsBit(requiredBit))
+            {
+                //requiredBit exists so ans will have this postion set.
+                ans=ans|(1<<i); 
+                
+                node=node->next(requiredBit);
+            }
+            else
+                node=node->next(bit);
+        }
+        
+        return ans;
+    }
+    
+};
+
+int Solution::solve(vector<int> &a, vector<int> &b) {
+    Trie t;
+
+    for(int i=0;i<a.size();i++)
+    {
+        t.insert(a[i]);
+    }
+
+    int ans=0;
+
+    for(int i=0;i<b.size();i++)
+    {
+        int temp=t.calculate(b[i]);
+        ans=max(ans,temp);
+    }
+
+    return ans;
+
+}
+

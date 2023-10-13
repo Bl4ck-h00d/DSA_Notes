@@ -1,6 +1,9 @@
 /**
  * Variations of Binary search
  *
+ * For a Binary Search type question we need to observe if the given question asks us to find minimum of maximums or maximums of minimum. If we can identify this in a question, it generally can be solved using Binary Search .
+ *
+ *
  * Distribution
  *
  * We want to make a dish which requires N ingredients. We are given how much of each ingredient is required to make 1 dish. We are also given amount of each ingredient available in our kitchen. There is a shop from where we can buy infinite amount of any ingredient (given the price of each). We have a fixed amount of money with us.
